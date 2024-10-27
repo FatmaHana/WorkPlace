@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>Manager Dashboard</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <a class="navbar-brand" href="#">
+        <% if (uloga === 'Admin') { %>
+            ADMIN
+        <% } else if (uloga === 'Menadzer') { %>
+            MENADZER
+        <% } else { %>
+            RADNIK
+        <% } %>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/pocetna">Pocetna</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/menadzer/svi/projekti">Projekti</a>
+            </li>
+            <% if (uloga === 'Menadzer' || uloga === 'Radnik') { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/moji/taskovi">Moji taskovi</a>
+                </li>
+            <% } %>
+            <% if (uloga === 'Menadzer') { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/zadani/taskovi">Zadani taskovi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/forma/task">Dodaj task</a>
+                </li>
+            <% } %>
+            <% if (uloga === 'Menadzer' || uloga === 'Admin') { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/forma/projekat">Dodaj projekat</a>
+                </li>
+            <% } %>
+            <% if (uloga === 'Menadzer' || uloga === 'Radnik') { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/unos/sati">Unesi radne sate</a>
+                </li>
+            <% } %>
+            <% if (uloga === 'Menadzer' || uloga === 'Admin') { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/izvjestaj/po/projektima">Izvjestaj po projektu</a>
+                </li>
+            <% } %>
+            <% if (uloga === 'Admin') { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/izvjestaj/po/radnicima/forma">Izvjestaj po radniku</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/prisustvo/forma">Prisustvo</a>
+                </li>
+            <% } %>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <h2 class="my-4">Projekti</h2>
+
+    <% projekti.forEach(projekat => { %>
+        <div class="card shadow rounded mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><%= projekat.ime %></h5>
+                <div class="row align-items-center">
+                    <div class="col">
+                        <%= projekat.ime %>
+                    </div>
+                    <% if (uloga === 'Admin') { %>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-outline-primary detalji-btn" onclick="detalji(<%= projekat.id %>)">
+                                Detalji
+                            </button>
+                        </div>
+                    <% } %>
+
+                    <div class="col-auto">
+                        <% if (projekat.status === 0) { %>
+                            <button type="button" class="btn btn-outline-success finish-btn" data-projekatid="<%= projekat.id %>">
+                                Aktivan
+                            </button>
+                        <% } else { %>
+                            <button type="button" class="btn btn-outline-secondary" disabled>
+                                Zavrsen
+                            </button>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% }); %>
+</div>
+
+</body>
+</html>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.finish-btn').on('click', function () {
+            var projekatID = $(this).data('projekatid');
+            var trenutni = $(this);
+
+            // Make an AJAX request
+            $.ajax({
+                url: '/menadzer/promjeni/status', // Replace with your actual server endpoint
+                method: 'POST', // or 'GET' depending on your server-side setup
+                data: { projekatID: projekatID },
+                success: function (response) {
+                    if (response.success) {
+                        console.log('Finish successful:', response);
+                        trenutni.prop('disabled', true);
+                    }
+                },
+                error: function (error) {
+                    console.error('Error finishing project:', error);
+                }
+            });
+        });
+    });
+
+    function detalji(id) {
+        window.location.href = `/menadzer/detalji/projekta/${id}`;
+    }
+</script>
+
+</body>
+</html>

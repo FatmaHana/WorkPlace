@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>Manager Dashboard</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <a class="navbar-brand" href="#">
+        <% if (uloga === 'Admin') { %>
+            ADMIN
+        <% } else if (uloga === 'Menadzer') { %>
+            MENADZER
+        <% } else { %>
+            RADNIK
+        <% } %>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/pocetna">Pocetna</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/menadzer/svi/projekti">Projekti</a>
+            </li>
+            <% if (uloga === 'Menadzer' || uloga === 'Radnik') { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/moji/taskovi">Moji taskovi</a>
+                </li>
+            <% } %>
+            <% if (uloga === 'Menadzer') { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/zadani/taskovi">Zadani taskovi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/forma/task">Dodaj task</a>
+                </li>
+            <% } %>
+            <% if (uloga === 'Menadzer' || uloga === 'Admin') { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/forma/projekat">Dodaj projekat</a>
+                </li>
+            <% } %>
+            <% if (uloga === 'Menadzer' || uloga === 'Radnik') { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/unos/sati">Unesi radne sate</a>
+                </li>
+            <% } %>
+            <% if (uloga === 'Menadzer' || uloga === 'Admin') { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/izvjestaj/po/projektima">Izvjestaj po projektu</a>
+                </li>
+            <% } %>
+            <% if (uloga === 'Admin') { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/menadzer/izvjestaj/po/radnicima/forma">Izvjestaj po radniku</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/prisustvo/forma">Prisustvo</a>
+                </li>
+            <% } %>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container p-5">
+
+    <div class="card shadow rounded mb-3">
+        <div class="card-body">
+           <% if (Array.isArray(podaci)) { %>
+                        <h3 class="card-title mb-3"><%= podaci[0].projekat %></h3>
+                        <h5 class="card-subtitle mb-2 text-muted"><%= podaci[0].task %></h5>
+                        <p class="card-text">Startni datum: <%= podaci[0].pocetak.toLocaleDateString('en-US') %></p>
+                        <p class="card-text">Zavrsni datum: <%= podaci[0].kraj.toLocaleDateString('en-US') %></p>
+                        <p class="card-text">Radnici:</p>
+                        <% podaci.forEach(function(podatak) { %>
+                            <p class="card-text">    <%= podatak.ime %> <%= podatak.prezime %></p>
+                        <% }); %>
+                    <% } else { %>
+                        <h3 class="card-title mb-3"><%= podaci.projekat %></h3>
+                        <h5 class="card-subtitle mb-2 text-muted"><%= podaci.task %></h5>
+                        <p class="card-text">Startni datum: <%= podaci.pocetak.toLocaleDateString('en-US') %></p>
+                        <p class="card-text">Zavrsni datum: <%= podaci.kraj.toLocaleDateString('en-US') %></p>
+                        <p class="card-text">Menadzer: <%= podaci.menadzer_ime %> <%= podaci.menadzer_prezime %></p>
+                <% } %>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+

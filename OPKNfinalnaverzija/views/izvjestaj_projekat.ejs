@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <title>Radni sati po projektima</title>
+  </head>
+  <body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <a class="navbar-brand" href="#">
+      <% if (uloga === 'Admin') { %>
+        ADMIN
+      <% } else if (uloga === 'Menadzer') { %>
+        MENADZER
+      <% } else { %>
+        RADNIK
+      <% } %>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/pocetna">Pocetna</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/menadzer/svi/projekti">Projekti</a>
+        </li>
+        <% if (uloga === 'Menadzer' || uloga === 'Radnik') { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/menadzer/moji/taskovi">Moji taskovi</a>
+          </li>
+        <% } %>
+        <% if (uloga === 'Menadzer') { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/menadzer/zadani/taskovi">Zadani taskovi</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/menadzer/forma/task">Dodaj task</a>
+          </li>
+        <% } %>
+        <% if (uloga === 'Menadzer' || uloga === 'Admin') { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/menadzer/forma/projekat">Dodaj projekat</a>
+          </li>
+        <% } %>
+        <% if (uloga === 'Menadzer' || uloga === 'Radnik') { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/menadzer/unos/sati">Unesi radne sate</a>
+          </li>
+        <% } %>
+        <% if (uloga === 'Menadzer' || uloga === 'Admin') { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/menadzer/izvjestaj/po/projektima">Izvjestaj po projektu</a>
+          </li>
+        <% } %>
+        <% if (uloga === 'Admin') { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/menadzer/izvjestaj/po/radnicima/forma">Izvjestaj po radniku</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/prisustvo/forma">Prisustvo</a>
+          </li>
+        <% } %>
+        <li class="nav-item">
+          <a class="nav-link" href="/logout">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+    <div class="container p-5">
+      <div id="reportContent" class="row justify-content-center">
+        <div class="col-8 position-relative">
+          <div class="table-responsive-md">
+            <table class="table caption-top">
+              <thead>
+              <tr>
+                <th scope="col">Ime projekta</th>
+                <th scope="col">Broj sati utroseno na projekat</th>
+              </tr>
+              </thead>
+              <tbody class="table-group-divider">
+                <% podaci.forEach( podatak => { %>
+                  <tr>
+                    <td><%= podatak.ime %></td>
+                    <% if (podatak.br_sati) { %>
+                      <td><%= podatak.br_sati %></td>
+                    <% } else { %>
+                      <td>---</td>
+                    <% } %>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-outline-primary" id="convertBtn">PDF</button>
+
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+    <!-- Your script using jsPDF -->
+  <!-- Include the html2pdf library -->
+  <script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      $('#convertBtn').on('click', function () {
+        console.log('Button clicked');
+        const reportContent = $('#reportContent')[0];
+
+        if (!reportContent) {
+          console.error('Report content not found.');
+          return;
+        }
+
+        // Use html2pdf to convert HTML content to PDF
+        window.html2pdf(reportContent, {
+          margin: 10,
+          filename: 'report.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }).then(pdf => {
+          console.log('PDF content added');
+
+          // Open the PDF in a new window
+          pdf.output('dataurlnewwindow');
+          // Alternatively, you can save the PDF
+          // pdf.save('report.pdf');
+        });
+      });
+
+      $('#sendToEmailBtn').on('click', function () {
+        console.log('Send to Email button clicked');
+
+        // Assume there is a server-side endpoint for sending emails
+        const emailData = {
+          to: '${nadredeni_email}`',
+          subject: 'Your Report PDF',
+          body: 'Please find attached your report PDF.',
+          attachment: pdf.output('datauristring') // Assuming pdf is accessible here
+        };
+
+        // Call the server-side endpoint to send the email
+        $.ajax({
+          url: '/email', // Replace with your server-side endpoint
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(emailData),
+          success: function (response) {
+            console.log('Email sent successfully:', response);
+          },
+          error: function (error) {
+            console.error('Error sending email:', error);
+          }
+        });
+      });
+    });
+
+
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+
+  </body>
+</html>

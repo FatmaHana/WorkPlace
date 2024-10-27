@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= title %></title>
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+        <script src="/socket.io/socket.io.js"></script>
+    </head>
+    <body>
+        <p id="poruka">Poruka: </p>
+        <input type="text" id="ime">
+        <input type="button" value="posalji" onclick="unesiIme()">
+        <script>
+            var socket = io.connect('http://localhost:3000');
+
+            socket.on('poruka sa servera', function (d) {
+                document.getElementById('poruka').innerHTML += d;
+            })
+
+            socket.on('sve_poruke', function (d) {
+                document.getElementById('poruka').innerHTML = d;
+            })
+            /*function posaljiPoruku() {
+                let tekst = document.getElementById('tekst_poruka').value;
+                //alert(tekst);
+                socket.emit('klijent salje poruku',  tekst);
+            }
+            socket.on('poruka', function (d) {
+              alert(d);
+            })*/
+
+            function unesiIme() {
+                let ime = document.getElementById('ime').value;
+                socket.emit('ime', ime);
+            }
+
+            socket.on('server poruka', function (d) {
+
+            })
+
+        </script>
+    </body>
+</html>
